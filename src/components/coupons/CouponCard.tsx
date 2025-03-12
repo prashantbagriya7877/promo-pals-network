@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Percent, MapPin, Building2, Calendar, Copy, Check } from "lucide-react";
+import { Percent, MapPin, Building2, Calendar, Copy, Check, EyeOff } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Coupon } from "@/types/coupon";
 import { useNavigate } from "react-router-dom";
@@ -50,6 +50,18 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
     });
   };
 
+  const handleRevealCode = () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Login Required",
+        description: "Please login or sign up to view coupon codes.",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+  };
+
   return (
     <Card className="overflow-hidden h-full flex flex-col hover:shadow-md transition-shadow duration-200">
       {coupon.imageUrl && (
@@ -91,21 +103,32 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
       </CardContent>
       <CardFooter className="pt-2 border-t">
         <div className="flex flex-col w-full gap-2">
-          <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md">
-            <span className="font-medium">{coupon.code}</span>
+          {isLoggedIn ? (
+            <div className="flex items-center justify-between px-3 py-2 bg-gray-50 rounded-md">
+              <span className="font-medium">{coupon.code}</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleCopyCouponCode}
+                className="h-8 w-8 p-0"
+              >
+                {copied ? (
+                  <Check className="h-4 w-4 text-green-500" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+              </Button>
+            </div>
+          ) : (
             <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleCopyCouponCode}
-              className="h-8 w-8 p-0"
+              variant="outline" 
+              className="w-full flex items-center justify-center gap-2"
+              onClick={handleRevealCode}
             >
-              {copied ? (
-                <Check className="h-4 w-4 text-green-500" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
+              <EyeOff className="h-4 w-4" />
+              Login to View Code
             </Button>
-          </div>
+          )}
           <Button className="w-full" onClick={handleClaimCoupon}>Claim Coupon</Button>
         </div>
       </CardFooter>
