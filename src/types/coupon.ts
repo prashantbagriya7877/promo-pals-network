@@ -15,3 +15,17 @@ export interface Coupon {
   usageCount: number;
   createdAt: string;
 }
+
+export interface ClaimedCoupon extends Coupon {
+  status: 'active' | 'used' | 'expired';
+  claimedAt: string;
+  usedAt?: string;
+}
+
+export interface CouponStats {
+  totalCoupons: number;
+  activeCoupons: number;
+  claimedCoupons: number;
+  redemptionRate: number;
+  popularCoupons: Coupon[];
+}

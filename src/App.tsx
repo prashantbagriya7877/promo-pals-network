@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
@@ -16,6 +16,17 @@ import CouponMarketplace from "./pages/CouponMarketplace";
 
 const queryClient = new QueryClient();
 
+// Simulated authentication state - would be from a real auth system
+const isLoggedIn = false;
+
+// Simple auth protection component
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -26,8 +37,16 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Auth />} />
           <Route path="/signup" element={<Auth />} />
-          <Route path="/business-profile" element={<BusinessProfile />} />
-          <Route path="/customer-profile" element={<CustomerProfile />} />
+          <Route path="/business-profile" element={
+            <ProtectedRoute>
+              <BusinessProfile />
+            </ProtectedRoute>
+          } />
+          <Route path="/customer-profile" element={
+            <ProtectedRoute>
+              <CustomerProfile />
+            </ProtectedRoute>
+          } />
           <Route path="/about" element={<About />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />

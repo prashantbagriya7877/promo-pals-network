@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Percent, MapPin, Building2, Calendar, Copy, Check } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Coupon } from "@/types/coupon";
+import { useNavigate } from "react-router-dom";
 
 interface CouponCardProps {
   coupon: Coupon;
@@ -14,6 +15,9 @@ interface CouponCardProps {
 const CouponCard = ({ coupon }: CouponCardProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
+  const navigate = useNavigate();
+  // In a real app, this would be from your auth state
+  const isLoggedIn = false;
 
   const handleCopyCouponCode = () => {
     navigator.clipboard.writeText(coupon.code);
@@ -26,6 +30,24 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
     setTimeout(() => {
       setCopied(false);
     }, 2000);
+  };
+
+  const handleClaimCoupon = () => {
+    if (!isLoggedIn) {
+      toast({
+        title: "Login Required",
+        description: "Please login or sign up to claim this coupon.",
+        variant: "destructive",
+      });
+      navigate("/login");
+      return;
+    }
+    
+    // This would be an API call in a real application
+    toast({
+      title: "Coupon Claimed!",
+      description: `${coupon.title} has been added to your account.`,
+    });
   };
 
   return (
@@ -84,7 +106,7 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
               )}
             </Button>
           </div>
-          <Button className="w-full">Claim Coupon</Button>
+          <Button className="w-full" onClick={handleClaimCoupon}>Claim Coupon</Button>
         </div>
       </CardFooter>
     </Card>

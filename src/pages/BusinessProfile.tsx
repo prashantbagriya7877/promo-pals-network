@@ -1,14 +1,15 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Percent, Tag, Plus, Edit, Trash2 } from "lucide-react";
+import { Building2, Percent, Tag, Plus, Edit, Trash2, BarChart } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import CouponStatistics from "@/components/business/CouponStatistics";
+import { CouponStats } from "@/types/coupon";
 
 // Mock data
 const mockCoupons = [
@@ -31,6 +32,30 @@ const mockCoupons = [
     usageCount: 78,
   },
 ];
+
+// Mock statistics data
+const mockStats: CouponStats = {
+  totalCoupons: 8,
+  activeCoupons: 4,
+  claimedCoupons: 156,
+  redemptionRate: 32,
+  popularCoupons: [
+    {
+      id: "1",
+      code: "SUMMER25",
+      title: "Summer Sale",
+      description: "25% off on all summer items",
+      discount: "25%",
+      category: "Seasonal",
+      businessName: "Coffee Haven",
+      businessId: "biz1",
+      location: "Downtown",
+      expiryDate: "2023-09-30",
+      usageCount: 45,
+      createdAt: "2023-06-01",
+    }
+  ]
+};
 
 const BusinessProfile = () => {
   const { toast } = useToast();
@@ -111,9 +136,13 @@ const BusinessProfile = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full max-w-md grid-cols-2 mb-8">
+          <TabsList className="grid w-full max-w-md grid-cols-3 mb-8">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="coupons">Coupons</TabsTrigger>
+            <TabsTrigger value="stats">
+              <BarChart className="h-4 w-4 mr-2" />
+              Statistics
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile">
@@ -376,6 +405,10 @@ const BusinessProfile = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="stats">
+            <CouponStatistics stats={mockStats} />
           </TabsContent>
         </Tabs>
       </main>

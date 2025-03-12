@@ -1,14 +1,34 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, User, Menu, X } from "lucide-react";
+import { Building2, User, Menu, X, Tag } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would be replaced with actual auth state
+  const [couponCount, setCouponCount] = useState(3); // This would be fetched from API
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
+  };
+
+  const handleCouponClick = () => {
+    if (isLoggedIn) {
+      navigate("/customer-profile?tab=coupons");
+    } else {
+      toast({
+        title: "Login Required",
+        description: "Please log in to view your coupons",
+        variant: "destructive",
+      });
+      navigate("/login");
+    }
   };
 
   return (
@@ -24,15 +44,20 @@ const Header = () => {
             <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
               Home
             </Link>
+            <Link to="/coupons" className="text-gray-700 hover:text-primary transition-colors">
+              Marketplace
+            </Link>
             <Link to="/about" className="text-gray-700 hover:text-primary transition-colors">
               About Us
             </Link>
-            <Link to="/business-profile" className="text-gray-700 hover:text-primary transition-colors">
-              Business
-            </Link>
-            <Link to="/customer-profile" className="text-gray-700 hover:text-primary transition-colors">
-              Customer
-            </Link>
+            <div className="relative cursor-pointer" onClick={handleCouponClick}>
+              <Tag className="h-5 w-5 text-primary" />
+              {couponCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+                  {couponCount}
+                </Badge>
+              )}
+            </div>
             <div className="flex space-x-2">
               <Button asChild variant="outline" size="sm">
                 <Link to="/login">
@@ -70,26 +95,34 @@ const Header = () => {
               Home
             </Link>
             <Link
+              to="/coupons"
+              className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Marketplace
+            </Link>
+            <Link
               to="/about"
               className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
               About Us
             </Link>
-            <Link
-              to="/business-profile"
-              className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
+            <div 
+              className="flex items-center px-2 py-1 text-gray-700 hover:text-primary transition-colors"
+              onClick={() => {
+                setIsMenuOpen(false);
+                handleCouponClick();
+              }}
             >
-              Business
-            </Link>
-            <Link
-              to="/customer-profile"
-              className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Customer
-            </Link>
+              <Tag className="h-4 w-4 mr-2" />
+              <span>My Coupons</span>
+              {couponCount > 0 && (
+                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+                  {couponCount}
+                </Badge>
+              )}
+            </div>
             <div className="flex flex-col space-y-2 pt-2">
               <Button asChild variant="outline" size="sm">
                 <Link to="/login" onClick={() => setIsMenuOpen(false)}>
