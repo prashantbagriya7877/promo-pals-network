@@ -103,6 +103,20 @@ const CustomerProfile = () => {
     markCouponAsUsed(claimId);
   };
 
+  // Helper function to determine coupon status
+  const getCouponStatus = (coupon: typeof userCoupons[0]) => {
+    const expiryDate = new Date(coupon.coupon.expiryDate);
+    const now = new Date();
+    
+    if (coupon.isUsed) {
+      return "used";
+    } else if (expiryDate < now) {
+      return "expired";
+    } else {
+      return "active";
+    }
+  };
+
   if (!isLoggedIn) {
     return null; // Don't render anything while redirecting
   }
@@ -292,59 +306,62 @@ const CustomerProfile = () => {
                         </Button>
                       </div>
                     ) : (
-                      userCoupons.map((coupon) => (
-                        <div
-                          key={coupon.id}
-                          className={`border rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
-                            coupon.status === "expired" ? "bg-gray-50" : ""
-                          }`}
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center">
-                              <Tag className={`h-4 w-4 mr-2 ${
-                                coupon.status === "active" ? "text-primary" : 
-                                coupon.status === "used" ? "text-gray-400" : "text-red-400"
-                              }`} />
-                              <span className="font-medium">{coupon.coupon.code}</span>
+                      userCoupons.map((coupon) => {
+                        const status = getCouponStatus(coupon);
+                        return (
+                          <div
+                            key={coupon.id}
+                            className={`border rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
+                              status === "expired" ? "bg-gray-50" : ""
+                            }`}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex items-center">
+                                <Tag className={`h-4 w-4 mr-2 ${
+                                  status === "active" ? "text-primary" : 
+                                  status === "used" ? "text-gray-400" : "text-red-400"
+                                }`} />
+                                <span className="font-medium">{coupon.coupon.code}</span>
+                              </div>
+                              <p className="text-sm">{coupon.coupon.title}</p>
+                              <div className="flex items-center">
+                                <Building2 className="h-3 w-3 mr-1 text-gray-500" />
+                                <p className="text-sm text-gray-500">{coupon.coupon.businessName}</p>
+                              </div>
                             </div>
-                            <p className="text-sm">{coupon.coupon.title}</p>
-                            <div className="flex items-center">
-                              <Building2 className="h-3 w-3 mr-1 text-gray-500" />
-                              <p className="text-sm text-gray-500">{coupon.coupon.businessName}</p>
+                            <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                              <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
+                                {coupon.coupon.discount}
+                              </div>
+                              <div className="text-sm flex items-center">
+                                <Clock className="h-3 w-3 mr-1 text-gray-500" />
+                                <span className="text-gray-500">Expires: </span>
+                                <span className="ml-1">{coupon.coupon.expiryDate}</span>
+                              </div>
+                              {status === "active" && (
+                                <Button
+                                  size="sm"
+                                  className="whitespace-nowrap"
+                                  onClick={() => handleUseCoupon(coupon.id)}
+                                >
+                                  Use Now
+                                </Button>
+                              )}
+                              {status === "used" && (
+                                <div className="flex items-center text-green-600 text-sm">
+                                  <CheckCircle className="h-3 w-3 mr-1" />
+                                  Used
+                                </div>
+                              )}
+                              {status === "expired" && (
+                                <div className="text-red-500 text-sm">
+                                  Expired
+                                </div>
+                              )}
                             </div>
                           </div>
-                          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
-                            <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                              {coupon.coupon.discount}
-                            </div>
-                            <div className="text-sm flex items-center">
-                              <Clock className="h-3 w-3 mr-1 text-gray-500" />
-                              <span className="text-gray-500">Expires: </span>
-                              <span className="ml-1">{coupon.coupon.expiryDate}</span>
-                            </div>
-                            {coupon.status === "active" && (
-                              <Button
-                                size="sm"
-                                className="whitespace-nowrap"
-                                onClick={() => handleUseCoupon(coupon.id)}
-                              >
-                                Use Now
-                              </Button>
-                            )}
-                            {coupon.status === "used" && (
-                              <div className="flex items-center text-green-600 text-sm">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Used
-                              </div>
-                            )}
-                            {coupon.status === "expired" && (
-                              <div className="text-red-500 text-sm">
-                                Expired
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))
+                        );
+                      })
                     )}
                   </div>
                 </CardContent>
