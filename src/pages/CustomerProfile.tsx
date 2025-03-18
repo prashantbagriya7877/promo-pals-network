@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,70 +9,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { ClaimedCoupon } from "@/types/coupon";
-
-// Mock data
-const mockCoupons: ClaimedCoupon[] = [
-  {
-    id: "1",
-    code: "SUMMER25",
-    title: "Summer Special",
-    description: "25% off on all summer items",
-    discount: "25%",
-    category: "Seasonal",
-    businessName: "Coffee Haven",
-    businessId: "biz1",
-    location: "Downtown",
-    expiryDate: "2023-09-30",
-    usageCount: 45,
-    createdAt: "2023-06-01",
-    status: "active",
-    claimedAt: "2023-07-15",
-  },
-  {
-    id: "2",
-    code: "WELCOME10",
-    title: "Welcome Discount",
-    description: "10% off on your first purchase",
-    discount: "10%",
-    category: "General",
-    businessName: "Books & Beyond",
-    businessId: "biz2",
-    location: "Uptown",
-    expiryDate: "2023-12-31",
-    usageCount: 78,
-    createdAt: "2023-05-10",
-    status: "used",
-    claimedAt: "2023-06-20",
-    usedAt: "2023-07-05",
-  },
-  {
-    id: "3",
-    code: "PIZZA20",
-    title: "Pizza Special",
-    description: "20% off on all pizzas",
-    discount: "20%",
-    category: "Food",
-    businessName: "Luigi's Pizza",
-    businessId: "biz3",
-    location: "Midtown",
-    expiryDate: "2023-10-15",
-    usageCount: 32,
-    createdAt: "2023-07-01",
-    status: "expired",
-    claimedAt: "2023-07-10",
-  },
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { useCoupons } from "@/hooks/useCoupons";
 
 const CustomerProfile = () => {
   const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
-  const [coupons, setCoupons] = useState<ClaimedCoupon[]>(mockCoupons);
-  const [customerName, setCustomerName] = useState("John Doe");
-  const [phone, setPhone] = useState("(123) 456-7890");
-  const [email, setEmail] = useState("john.doe@example.com");
-  const [address, setAddress] = useState("456 Oak Lane, Anytown, USA");
+  const { user, isLoggedIn } = useAuth();
+  const { userCoupons, claimCoupon, markCouponAsUsed } = useCoupons();
+
+  const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
   
   const [isEditing, setIsEditing] = useState(false);
   const [couponCode, setCouponCode] = useState("");
@@ -82,17 +31,23 @@ const CustomerProfile = () => {
   const [activeTab, setActiveTab] = useState<string>("profile");
   
   useEffect(() => {
+    // If user is logged in, populate the form with user data
+    if (user) {
+      setCustomerName(user.name || "");
+      setEmail(user.email || "");
+      // In a real app, these would come from the user object too
+      setPhone("(123) 456-7890");
+      setAddress("456 Oak Lane, Anytown, USA");
+    }
+
     const params = new URLSearchParams(location.search);
     const tabParam = params.get("tab");
     if (tabParam && (tabParam === "profile" || tabParam === "coupons")) {
       setActiveTab(tabParam);
     }
-  }, [location]);
+  }, [user, location]);
 
-  // In a real app, this would be connected to your auth system
-  const isLoggedIn = true;
-  
-  // Simulate a login check
+  // Check if user is logged in
   useEffect(() => {
     if (!isLoggedIn) {
       toast({
@@ -100,7 +55,7 @@ const CustomerProfile = () => {
         description: "Please log in to view your profile",
         variant: "destructive",
       });
-      navigate("/login");
+      navigate("/login?from=/customer/profile");
     }
   }, [isLoggedIn, navigate, toast]);
 
@@ -125,32 +80,15 @@ const CustomerProfile = () => {
       return;
     }
     
-    // This would be replaced with an actual API call to validate the coupon
-    if (couponCode === "NEWDISCOUNT") {
-      const newCoupon: ClaimedCoupon = {
-        id: Date.now().toString(),
-        code: couponCode,
-        title: "New Customer Discount",
-        description: "15% off for new customers",
-        discount: "15%",
-        category: "General",
-        businessName: "Sample Business",
-        businessId: "biz4",
-        location: "Downtown",
-        expiryDate: "2023-12-31",
-        usageCount: 0,
-        createdAt: new Date().toISOString(),
-        status: "active",
-        claimedAt: new Date().toISOString(),
-      };
-      
-      setCoupons([newCoupon, ...coupons]);
-      setCouponCode("");
-      
-      toast({
-        title: "Coupon Claimed",
-        description: "The coupon has been added to your account.",
-      });
+    // Find if a coupon with this code exists
+    // Note: In a real app, this would be an API call
+    const couponToAdd = coupons.find(c => c.code === couponCode.trim());
+    
+    if (couponToAdd) {
+      const success = claimCoupon(couponToAdd.id);
+      if (success) {
+        setCouponCode("");
+      }
     } else {
       toast({
         title: "Invalid Coupon",
@@ -160,18 +98,8 @@ const CustomerProfile = () => {
     }
   };
 
-  const handleUseCoupon = (couponId: string) => {
-    // In a real app, this would call an API to validate and use the coupon
-    setCoupons(coupons.map(coupon => 
-      coupon.id === couponId 
-        ? { ...coupon, status: 'used' as const, usedAt: new Date().toISOString() } 
-        : coupon
-    ));
-    
-    toast({
-      title: "Coupon Used",
-      description: "Your coupon has been marked as used.",
-    });
+  const handleUseCoupon = (claimId: string) => {
+    markCouponAsUsed(claimId);
   };
 
   if (!isLoggedIn) {

@@ -1,7 +1,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignupForm from "./SignupForm";
 
@@ -11,9 +11,15 @@ interface AuthTabsProps {
 
 const AuthTabs = ({ defaultTab = "login" }: AuthTabsProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get the "from" param from the URL if it exists for redirecting after login
+  const params = new URLSearchParams(location.search);
+  const from = params.get('from') || '/';
 
   const handleTabChange = (value: string) => {
-    navigate(value === "login" ? "/login" : "/signup");
+    const currentParams = new URLSearchParams(location.search);
+    navigate(`${value === "login" ? "/login" : "/signup"}?${currentParams.toString()}`);
   };
 
   return (
@@ -24,10 +30,10 @@ const AuthTabs = ({ defaultTab = "login" }: AuthTabsProps) => {
           <TabsTrigger value="signup">Sign Up</TabsTrigger>
         </TabsList>
         <TabsContent value="login">
-          <LoginForm />
+          <LoginForm redirectPath={from} />
         </TabsContent>
         <TabsContent value="signup">
-          <SignupForm />
+          <SignupForm redirectPath={from} />
         </TabsContent>
       </Tabs>
     </Card>

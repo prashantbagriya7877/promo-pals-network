@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import * as couponModel from '@/models/coupons';
@@ -34,6 +33,17 @@ export function useCoupons() {
     }
   }, [user, toast]);
 
+  // Check if a coupon is already claimed by the current user
+  const isAlreadyClaimed = (couponId: string): boolean => {
+    if (!user) return false;
+    
+    const userCoupon = userCoupons.find(claim => 
+      claim.coupon && claim.coupon.id === couponId
+    );
+    
+    return !!userCoupon;
+  };
+
   // Claim a coupon
   const claimCoupon = (couponId: string) => {
     if (!user) {
@@ -43,6 +53,16 @@ export function useCoupons() {
         variant: "destructive",
       });
       return false;
+    }
+
+    // Check if already claimed
+    if (isAlreadyClaimed(couponId)) {
+      toast({
+        title: "Already Claimed",
+        description: "You have already claimed this coupon!",
+        variant: "default",
+      });
+      return true;
     }
 
     try {
@@ -136,6 +156,7 @@ export function useCoupons() {
     userCoupons,
     loading,
     claimCoupon,
+    isAlreadyClaimed,
     markCouponAsUsed,
     getBusinessCoupons,
     getBusinessStatistics,

@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Percent, MapPin, Building2, Calendar, Copy, Check, EyeOff } from "lucide-react";
+import { Percent, MapPin, Building2, Calendar, Copy, Check, EyeOff, CheckCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Coupon } from "@/types/coupon";
 import { useNavigate } from "react-router-dom";
@@ -19,7 +18,9 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
   const { isLoggedIn } = useAuth();
-  const { claimCoupon } = useCoupons();
+  const { claimCoupon, isAlreadyClaimed } = useCoupons();
+  
+  const isClaimed = isLoggedIn && isAlreadyClaimed(coupon.id);
 
   const handleCopyCouponCode = () => {
     navigator.clipboard.writeText(coupon.code);
@@ -127,7 +128,16 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
               Login to View Code
             </Button>
           )}
-          <Button className="w-full" onClick={handleClaimCoupon}>Claim Coupon</Button>
+          {isClaimed ? (
+            <Button variant="outline" className="w-full" disabled>
+              <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
+              Already Claimed
+            </Button>
+          ) : (
+            <Button className="w-full" onClick={handleClaimCoupon}>
+              Claim Coupon
+            </Button>
+          )}
         </div>
       </CardFooter>
     </Card>
