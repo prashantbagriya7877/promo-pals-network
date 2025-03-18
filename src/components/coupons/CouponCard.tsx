@@ -7,6 +7,8 @@ import { Percent, MapPin, Building2, Calendar, Copy, Check, EyeOff } from "lucid
 import { useToast } from "@/components/ui/use-toast";
 import { Coupon } from "@/types/coupon";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCoupons } from "@/hooks/useCoupons";
 
 interface CouponCardProps {
   coupon: Coupon;
@@ -16,8 +18,8 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
   const navigate = useNavigate();
-  // In a real app, this would be from your auth state
-  const isLoggedIn = false;
+  const { isLoggedIn } = useAuth();
+  const { claimCoupon } = useCoupons();
 
   const handleCopyCouponCode = () => {
     navigator.clipboard.writeText(coupon.code);
@@ -43,11 +45,7 @@ const CouponCard = ({ coupon }: CouponCardProps) => {
       return;
     }
     
-    // This would be an API call in a real application
-    toast({
-      title: "Coupon Claimed!",
-      description: `${coupon.title} has been added to your account.`,
-    });
+    claimCoupon(coupon.id);
   };
 
   const handleRevealCode = () => {

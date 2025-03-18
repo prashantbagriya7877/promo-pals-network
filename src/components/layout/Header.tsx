@@ -1,18 +1,19 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, User, Menu, X, Tag } from "lucide-react";
+import { Building2, User, Menu, X, Tag, UserCircle, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would be replaced with actual auth state
   const [couponCount, setCouponCount] = useState(3); // This would be fetched from API
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isLoggedIn, logout } = useAuth();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -29,6 +30,15 @@ const Header = () => {
       });
       navigate("/login");
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    toast({
+      title: "Logged out",
+      description: "You have been successfully logged out.",
+    });
+    navigate("/");
   };
 
   return (
@@ -50,27 +60,46 @@ const Header = () => {
             <Link to="/about" className="text-gray-700 hover:text-primary transition-colors">
               About Us
             </Link>
-            <div className="relative cursor-pointer" onClick={handleCouponClick}>
-              <Tag className="h-5 w-5 text-primary" />
-              {couponCount > 0 && (
-                <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
-                  {couponCount}
-                </Badge>
-              )}
-            </div>
+            {user?.userType === 'customer' && (
+              <div className="relative cursor-pointer" onClick={handleCouponClick}>
+                <Tag className="h-5 w-5 text-primary" />
+                {couponCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+                    {couponCount}
+                  </Badge>
+                )}
+              </div>
+            )}
             <div className="flex space-x-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/login">
-                  <User className="mr-2 h-4 w-4" />
-                  Login
-                </Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link to="/signup">
-                  <Building2 className="mr-2 h-4 w-4" />
-                  Sign Up
-                </Link>
-              </Button>
+              {isLoggedIn ? (
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to={user?.userType === 'business' ? "/business-profile" : "/customer-profile"}>
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      {user?.name || 'Profile'}
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/login">
+                      <User className="mr-2 h-4 w-4" />
+                      Login
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link to="/signup">
+                      <Building2 className="mr-2 h-4 w-4" />
+                      Sign Up
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
 
@@ -108,34 +137,63 @@ const Header = () => {
             >
               About Us
             </Link>
-            <div 
-              className="flex items-center px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-              onClick={() => {
-                setIsMenuOpen(false);
-                handleCouponClick();
-              }}
-            >
-              <Tag className="h-4 w-4 mr-2" />
-              <span>My Coupons</span>
-              {couponCount > 0 && (
-                <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
-                  {couponCount}
-                </Badge>
-              )}
-            </div>
+            {user?.userType === 'customer' && (
+              <div 
+                className="flex items-center px-2 py-1 text-gray-700 hover:text-primary transition-colors"
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  handleCouponClick();
+                }}
+              >
+                <Tag className="h-4 w-4 mr-2" />
+                <span>My Coupons</span>
+                {couponCount > 0 && (
+                  <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
+                    {couponCount}
+                  </Badge>
+                )}
+              </div>
+            )}
             <div className="flex flex-col space-y-2 pt-2">
-              <Button asChild variant="outline" size="sm">
-                <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                  <User className="mr-2 h-4 w-4" />
-                  Login
-                </Link>
-              </Button>
-              <Button asChild size="sm">
-                <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                  <Building2 className="mr-2 h-4 w-4" />
-                  Sign Up
-                </Link>
-              </Button>
+              {isLoggedIn ? (
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <Link 
+                      to={user?.userType === 'business' ? "/business-profile" : "/customer-profile"}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      My Profile
+                    </Link>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      handleLogout();
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
+                      <User className="mr-2 h-4 w-4" />
+                      Login
+                    </Link>
+                  </Button>
+                  <Button asChild size="sm">
+                    <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
+                      <Building2 className="mr-2 h-4 w-4" />
+                      Sign Up
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </nav>
         )}

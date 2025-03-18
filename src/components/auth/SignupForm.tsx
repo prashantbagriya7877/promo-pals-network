@@ -1,20 +1,52 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const SignupForm = () => {
   const [userType, setUserType] = useState<"business" | "customer">("customer");
+  const [name, setName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { signup } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Coming soon!",
-      description: "Authentication will be implemented with Supabase integration.",
-    });
+    setIsLoading(true);
+    
+    try {
+      await signup({
+        name: userType === "business" ? businessName : name,
+        email,
+        password,
+        userType,
+      });
+      
+      toast({
+        title: "Account created!",
+        description: "Welcome to WowPromo!",
+      });
+      
+      // Redirect to the appropriate profile page
+      navigate(userType === "business" ? "/business-profile" : "/customer-profile");
+    } catch (error) {
+      toast({
+        title: "Sign up failed",
+        description: "There was an error creating your account. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -38,23 +70,45 @@ const SignupForm = () => {
       {userType === "business" && (
         <div className="space-y-2">
           <Label htmlFor="businessName">Business Name</Label>
-          <Input id="businessName" required />
+          <Input 
+            id="businessName" 
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+            required 
+          />
         </div>
       )}
       <div className="space-y-2">
         <Label htmlFor="name">Full Name</Label>
-        <Input id="name" required />
+        <Input 
+          id="name" 
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required 
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
-        <Input id="email" type="email" required />
+        <Input 
+          id="email" 
+          type="email" 
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required 
+        />
       </div>
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
-        <Input id="password" type="password" required />
+        <Input 
+          id="password" 
+          type="password" 
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required 
+        />
       </div>
-      <Button type="submit" className="w-full">
-        Sign Up
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading ? "Creating Account..." : "Sign Up"}
       </Button>
     </form>
   );
