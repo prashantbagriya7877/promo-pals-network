@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,7 +56,7 @@ const CustomerProfile = () => {
         description: "Please log in to view your profile",
         variant: "destructive",
       });
-      navigate("/login?from=/customer/profile");
+      navigate("/login?from=/customer-profile");
     }
   }, [isLoggedIn, navigate, toast]);
 
@@ -82,10 +83,10 @@ const CustomerProfile = () => {
     
     // Find if a coupon with this code exists
     // Note: In a real app, this would be an API call
-    const couponToAdd = coupons.find(c => c.code === couponCode.trim());
+    const couponToAdd = userCoupons.find(c => c.coupon && c.coupon.code === couponCode.trim());
     
     if (couponToAdd) {
-      const success = claimCoupon(couponToAdd.id);
+      const success = claimCoupon(couponToAdd.coupon.id);
       if (success) {
         setCouponCode("");
       }
@@ -278,7 +279,7 @@ const CustomerProfile = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {coupons.length === 0 ? (
+                    {userCoupons.length === 0 ? (
                       <div className="text-center text-gray-500 py-8 flex flex-col items-center">
                         <AlertTriangle className="h-12 w-12 text-gray-300 mb-2" />
                         <p>You don't have any coupons yet.</p>
@@ -291,7 +292,7 @@ const CustomerProfile = () => {
                         </Button>
                       </div>
                     ) : (
-                      coupons.map((coupon) => (
+                      userCoupons.map((coupon) => (
                         <div
                           key={coupon.id}
                           className={`border rounded-lg p-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${
@@ -304,22 +305,22 @@ const CustomerProfile = () => {
                                 coupon.status === "active" ? "text-primary" : 
                                 coupon.status === "used" ? "text-gray-400" : "text-red-400"
                               }`} />
-                              <span className="font-medium">{coupon.code}</span>
+                              <span className="font-medium">{coupon.coupon.code}</span>
                             </div>
-                            <p className="text-sm">{coupon.title}</p>
+                            <p className="text-sm">{coupon.coupon.title}</p>
                             <div className="flex items-center">
                               <Building2 className="h-3 w-3 mr-1 text-gray-500" />
-                              <p className="text-sm text-gray-500">{coupon.businessName}</p>
+                              <p className="text-sm text-gray-500">{coupon.coupon.businessName}</p>
                             </div>
                           </div>
                           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                             <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                              {coupon.discount}
+                              {coupon.coupon.discount}
                             </div>
                             <div className="text-sm flex items-center">
                               <Clock className="h-3 w-3 mr-1 text-gray-500" />
                               <span className="text-gray-500">Expires: </span>
-                              <span className="ml-1">{coupon.expiryDate}</span>
+                              <span className="ml-1">{coupon.coupon.expiryDate}</span>
                             </div>
                             {coupon.status === "active" && (
                               <Button

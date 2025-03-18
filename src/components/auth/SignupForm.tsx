@@ -7,7 +7,11 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
-const SignupForm = () => {
+interface SignupFormProps {
+  redirectPath?: string;
+}
+
+const SignupForm = ({ redirectPath = "/" }: SignupFormProps) => {
   const [userType, setUserType] = useState<"business" | "customer">("customer");
   const [name, setName] = useState("");
   const [businessName, setBusinessName] = useState("");
@@ -36,8 +40,8 @@ const SignupForm = () => {
         description: "Welcome to WowPromo!",
       });
       
-      // Redirect to the appropriate profile page
-      navigate(userType === "business" ? "/business-profile" : "/customer-profile");
+      // Redirect to the appropriate profile page or the specified redirect path
+      navigate(userType === "business" ? "/business-profile" : redirectPath);
     } catch (error) {
       toast({
         title: "Sign up failed",

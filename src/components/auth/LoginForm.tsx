@@ -7,7 +7,11 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
-const LoginForm = () => {
+interface LoginFormProps {
+  redirectPath?: string;
+}
+
+const LoginForm = ({ redirectPath = "/" }: LoginFormProps) => {
   const [userType, setUserType] = useState<"business" | "customer">("customer");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,8 +21,8 @@ const LoginForm = () => {
   const location = useLocation();
   const { login } = useAuth();
 
-  // Get redirect location if set (e.g., from ProtectedRoute)
-  const from = location.state?.from?.pathname || "/";
+  // Use either the passed in redirectPath or the from in location state
+  const from = location.state?.from?.pathname || redirectPath;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
