@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { User, Tag, Building2, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,8 +14,7 @@ import { useCoupons } from "@/hooks/useCoupons";
 
 const CustomerProfile = () => {
   const { toast } = useToast();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user, isLoggedIn } = useAuth();
   const { userCoupons, claimCoupon, markCouponAsUsed } = useCoupons();
 
@@ -41,12 +39,11 @@ const CustomerProfile = () => {
       setAddress("456 Oak Lane, Anytown, USA");
     }
 
-    const params = new URLSearchParams(location.search);
-    const tabParam = params.get("tab");
+    const tabParam = router.query.tab as string;
     if (tabParam && (tabParam === "profile" || tabParam === "coupons")) {
       setActiveTab(tabParam);
     }
-  }, [user, location]);
+  }, [user, router.query]);
 
   // Check if user is logged in
   useEffect(() => {
@@ -56,9 +53,9 @@ const CustomerProfile = () => {
         description: "Please log in to view your profile",
         variant: "destructive",
       });
-      navigate("/login?from=/customer-profile");
+      router.push("/login?from=/customer-profile");
     }
-  }, [isLoggedIn, navigate, toast]);
+  }, [isLoggedIn, router, toast]);
 
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -300,7 +297,7 @@ const CustomerProfile = () => {
                         <Button 
                           variant="outline" 
                           className="mt-4"
-                          onClick={() => navigate("/coupons")}
+                          onClick={() => router.push("/coupons")}
                         >
                           Browse Marketplace
                         </Button>

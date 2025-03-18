@@ -1,14 +1,13 @@
 
 import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter } from "next/router";
 import AuthTabs from "@/components/auth/AuthTabs";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 const Auth = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isLoginTab = location.pathname === "/login";
+  const router = useRouter();
+  const isLoginTab = router.pathname === "/login";
 
   useEffect(() => {
     // Scroll to top when component mounts

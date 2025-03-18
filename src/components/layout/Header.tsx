@@ -1,202 +1,168 @@
 
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
-import { Building2, User, Menu, X, Tag, UserCircle, LogOut } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/components/ui/use-toast";
-import { Badge } from "@/components/ui/badge";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Menu, X, User, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useMobile } from "@/hooks/use-mobile";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [couponCount, setCouponCount] = useState(3); // This would be fetched from API
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const { user, isLoggedIn, logout } = useAuth();
+  const { user, logout, isLoggedIn } = useAuth();
+  const isMobile = useMobile();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
-  const handleCouponClick = () => {
-    if (isLoggedIn) {
-      navigate("/customer-profile?tab=coupons");
-    } else {
-      toast({
-        title: "Login Required",
-        description: "Please log in to view your coupons",
-        variant: "destructive",
-      });
-      navigate("/login");
-    }
-  };
+  // Update isScrolled state based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
-    navigate("/");
+    router.push("/");
+    setIsOpen(false);
   };
 
+  const NAV_ITEMS = [
+    { name: "Home", href: "/" },
+    { name: "About", href: "/about" },
+    { name: "Coupons", href: "/coupons" },
+  ];
+
+  const isActive = (path: string) => router.pathname === path;
+
   return (
-    <header className="bg-white shadow-sm py-4 px-4">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="flex items-center">
-            <h1 className="text-2xl font-bold text-primary">WowPromo</h1>
+    <header
+      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
+        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
+      }`}
+    >
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="flex items-center">
+            <span className="text-xl font-bold text-primary">WowPromo</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link to="/" className="text-gray-700 hover:text-primary transition-colors">
-              Home
-            </Link>
-            <Link to="/coupons" className="text-gray-700 hover:text-primary transition-colors">
-              Marketplace
-            </Link>
-            <Link to="/about" className="text-gray-700 hover:text-primary transition-colors">
-              About Us
-            </Link>
-            {user?.userType === 'customer' && (
-              <div className="relative cursor-pointer" onClick={handleCouponClick}>
-                <Tag className="h-5 w-5 text-primary" />
-                {couponCount > 0 && (
-                  <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
-                    {couponCount}
-                  </Badge>
-                )}
-              </div>
-            )}
-            <div className="flex space-x-2">
-              {isLoggedIn ? (
-                <>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to={user?.userType === 'business' ? "/business-profile" : "/customer-profile"}>
-                      <UserCircle className="mr-2 h-4 w-4" />
-                      {user?.name || 'Profile'}
-                    </Link>
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/login">
-                      <User className="mr-2 h-4 w-4" />
-                      Login
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm">
-                    <Link to="/signup">
-                      <Building2 className="mr-2 h-4 w-4" />
-                      Sign Up
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
+          <nav className="hidden md:flex items-center space-x-8">
+            {NAV_ITEMS.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`text-sm font-medium transition-colors ${
+                  isActive(item.href)
+                    ? "text-primary"
+                    : "text-gray-600 hover:text-primary"
+                }`}
+              >
+                {item.name}
+              </Link>
+            ))}
           </nav>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            {isLoggedIn ? (
+              <>
+                <Button asChild variant="ghost">
+                  <Link href={user?.userType === "business" ? "/business-profile" : "/customer-profile"}>
+                    <User className="h-4 w-4 mr-2" />
+                    My Profile
+                  </Link>
+                </Button>
+                <Button variant="outline" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button asChild variant="ghost">
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/signup">Sign Up</Link>
+                </Button>
+              </>
+            )}
+          </div>
 
           {/* Mobile Menu Button */}
-          <button
-            className="md:hidden text-gray-700"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <nav className="md:hidden mt-4 py-2 space-y-3">
-            <Link
-              to="/"
-              className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              to="/coupons"
-              className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Marketplace
-            </Link>
-            <Link
-              to="/about"
-              className="block px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              About Us
-            </Link>
-            {user?.userType === 'customer' && (
-              <div 
-                className="flex items-center px-2 py-1 text-gray-700 hover:text-primary transition-colors"
-                onClick={() => {
-                  setIsMenuOpen(false);
-                  handleCouponClick();
-                }}
-              >
-                <Tag className="h-4 w-4 mr-2" />
-                <span>My Coupons</span>
-                {couponCount > 0 && (
-                  <Badge className="ml-2 h-5 w-5 p-0 flex items-center justify-center rounded-full">
-                    {couponCount}
-                  </Badge>
-                )}
-              </div>
-            )}
-            <div className="flex flex-col space-y-2 pt-2">
-              {isLoggedIn ? (
-                <>
-                  <Button asChild variant="outline" size="sm">
-                    <Link 
-                      to={user?.userType === 'business' ? "/business-profile" : "/customer-profile"}
-                      onClick={() => setIsMenuOpen(false)}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+              <div className="px-4 py-6">
+                <div className="flex items-center justify-between mb-8">
+                  <span className="text-xl font-bold text-primary">WowPromo</span>
+                  <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                    <X className="h-6 w-6" />
+                    <span className="sr-only">Close menu</span>
+                  </Button>
+                </div>
+                <nav className="flex flex-col space-y-6 mb-8">
+                  {NAV_ITEMS.map((item) => (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className={`text-base font-medium transition-colors ${
+                        isActive(item.href) ? "text-primary" : "text-gray-600 hover:text-primary"
+                      }`}
+                      onClick={() => setIsOpen(false)}
                     >
-                      <UserCircle className="mr-2 h-4 w-4" />
-                      My Profile
+                      {item.name}
                     </Link>
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      handleLogout();
-                    }}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button asChild variant="outline" size="sm">
-                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                      <User className="mr-2 h-4 w-4" />
-                      Login
-                    </Link>
-                  </Button>
-                  <Button asChild size="sm">
-                    <Link to="/signup" onClick={() => setIsMenuOpen(false)}>
-                      <Building2 className="mr-2 h-4 w-4" />
-                      Sign Up
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </nav>
-        )}
+                  ))}
+                </nav>
+                <div className="flex flex-col space-y-4">
+                  {isLoggedIn ? (
+                    <>
+                      <Button asChild>
+                        <Link
+                          href={user?.userType === "business" ? "/business-profile" : "/customer-profile"}
+                          onClick={() => setIsOpen(false)}
+                        >
+                          <User className="h-4 w-4 mr-2" />
+                          My Profile
+                        </Link>
+                      </Button>
+                      <Button variant="outline" onClick={handleLogout}>
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button asChild variant="outline">
+                        <Link href="/login" onClick={() => setIsOpen(false)}>
+                          Login
+                        </Link>
+                      </Button>
+                      <Button asChild>
+                        <Link href="/signup" onClick={() => setIsOpen(false)}>
+                          Sign Up
+                        </Link>
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </header>
   );

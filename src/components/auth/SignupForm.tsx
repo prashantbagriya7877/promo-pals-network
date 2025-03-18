@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,7 +20,7 @@ const SignupForm = ({ redirectPath = "/" }: SignupFormProps) => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { signup } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,7 +41,7 @@ const SignupForm = ({ redirectPath = "/" }: SignupFormProps) => {
       });
       
       // Redirect to the appropriate profile page or the specified redirect path
-      navigate(userType === "business" ? "/business-profile" : redirectPath);
+      router.push(userType === "business" ? "/business-profile" : redirectPath);
     } catch (error) {
       toast({
         title: "Sign up failed",

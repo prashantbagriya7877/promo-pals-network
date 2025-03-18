@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Users, TagIcon, TrendingUp, Award, Zap, Globe } from "lucide-react";
 import Header from "@/components/layout/Header";

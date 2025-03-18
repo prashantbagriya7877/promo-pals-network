@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Building2, Users, TagIcon, TrendingUp, Star, MessageCircle, ChevronRight, Check } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
@@ -57,12 +57,12 @@ const Index = () => {
                 
                 <div className="flex gap-4">
                   <Button asChild size="lg">
-                    <Link to="/signup">
+                    <Link href="/signup">
                       Sign Up Now
                     </Link>
                   </Button>
                   <Button asChild variant="outline" size="lg">
-                    <Link to="/about">
+                    <Link href="/about">
                       Learn More
                     </Link>
                   </Button>
@@ -98,7 +98,7 @@ const Index = () => {
                     </ol>
                     <div className="mt-6">
                       <Button asChild className="w-full">
-                        <Link to="/business-profile">
+                        <Link href="/business-profile">
                           Get Started
                         </Link>
                       </Button>
@@ -160,7 +160,7 @@ const Index = () => {
             
             <div className="mt-10 text-center">
               <Button asChild variant="outline" size="lg">
-                <Link to="/about" className="flex items-center">
+                <Link href="/about" className="flex items-center">
                   Learn More About Our Features
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>
@@ -244,7 +244,7 @@ const Index = () => {
             
             <div className="mt-10 text-center">
               <Button asChild variant="secondary" size="lg">
-                <Link to="/coupons">
+                <Link href="/coupons">
                   Browse Available Coupons
                 </Link>
               </Button>
@@ -262,12 +262,12 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button asChild size="lg">
-                  <Link to="/signup">
+                  <Link href="/signup">
                     Sign Up for Free
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg">
-                  <Link to="/coupons">
+                  <Link href="/coupons">
                     Explore Coupons
                   </Link>
                 </Button>

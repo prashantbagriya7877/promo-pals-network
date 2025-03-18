@@ -1,23 +1,23 @@
 
-import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/router";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 
 const NotFound = () => {
-  const location = useLocation();
+  const router = useRouter();
 
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
-      location.pathname
+      router.asPath
     );
     
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+  }, [router.asPath]);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -31,10 +31,10 @@ const NotFound = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild>
-              <Link to="/">Return to Home</Link>
+              <Link href="/">Return to Home</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link to="/coupons">Browse Coupons</Link>
+              <Link href="/coupons">Browse Coupons</Link>
             </Button>
           </div>
         </div>
