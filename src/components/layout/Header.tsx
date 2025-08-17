@@ -39,14 +39,16 @@ const Header = () => {
 
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-200 ${
-        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
+      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled ? "bg-white/95 backdrop-blur-lg shadow-lg border-b border-primary/10" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center">
-            <span className="text-xl font-bold text-primary">WowPromo</span>
+          <Link href="/" className="flex items-center group">
+            <span className="text-2xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent group-hover:scale-105 transition-transform duration-300">
+              WowPromo
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8">
@@ -54,13 +56,14 @@ const Header = () => {
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-sm font-medium transition-colors ${
+                className={`text-sm font-medium transition-all duration-300 relative group ${
                   isActive(item.href)
                     ? "text-primary"
-                    : "text-gray-600 hover:text-primary"
+                    : "text-muted-foreground hover:text-primary"
                 }`}
               >
                 {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-blue-600 transition-all duration-300 group-hover:w-full"></span>
               </Link>
             ))}
           </nav>
@@ -68,23 +71,23 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                <Button asChild variant="ghost">
+                <Button asChild variant="ghost" className="hover:bg-primary/10 transition-colors duration-300">
                   <Link href={user?.userType === "business" ? "/business-profile" : "/customer-profile"}>
                     <User className="h-4 w-4 mr-2" />
                     My Profile
                   </Link>
                 </Button>
-                <Button variant="outline" onClick={handleLogout}>
+                <Button variant="outline" onClick={handleLogout} className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all duration-300">
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
                 </Button>
               </>
             ) : (
               <>
-                <Button asChild variant="ghost">
+                <Button asChild variant="ghost" className="hover:bg-primary/10 transition-colors duration-300">
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className="bg-gradient-to-r from-primary to-blue-600 hover:from-blue-600 hover:to-primary text-white shadow-lg hover:shadow-xl transition-all duration-300">
                   <Link href="/signup">Sign Up</Link>
                 </Button>
               </>

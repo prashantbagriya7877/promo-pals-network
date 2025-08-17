@@ -65,17 +65,22 @@ const CouponMarketplace = () => {
   const locations = Array.from(new Set(coupons.map(coupon => coupon.location)));
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-primary/5 to-blue-50/30">
       <Header />
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center">
-            <Tag className="h-8 w-8 text-primary mr-3" />
-            <h1 className="text-3xl font-bold">Coupon Marketplace</h1>
+      <main className="flex-grow container mx-auto px-4 py-12">
+        <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center animate-fadeIn">
+            <div className="bg-gradient-to-r from-primary to-blue-600 p-3 rounded-xl mr-4 shadow-lg">
+              <Tag className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold text-gradient">Coupon Marketplace</h1>
+              <p className="text-muted-foreground mt-1">Discover amazing deals from local businesses</p>
+            </div>
           </div>
           <Button 
             variant="outline" 
-            className="md:hidden" 
+            className="md:hidden hover:bg-primary/10 transition-colors duration-300" 
             onClick={() => setShowFilters(!showFilters)}
           >
             <Filter className="h-4 w-4 mr-2" />
@@ -117,12 +122,12 @@ const CouponMarketplace = () => {
           {/* Main content */}
           <div className="md:w-3/4">
             {/* Search bar */}
-            <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="relative mb-8 animate-slideUp">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground z-10" />
               <Input
                 type="text"
                 placeholder="Search coupons, businesses, or categories..."
-                className="pl-10"
+                className="pl-12 h-12 text-lg bg-white/80 backdrop-blur-sm border-primary/20 focus:border-primary/40 transition-all duration-300"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -130,18 +135,20 @@ const CouponMarketplace = () => {
             
             {/* Coupons grid */}
             {filteredCoupons.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCoupons.map((coupon) => (
-                  <CouponCard key={coupon.id} coupon={coupon} />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {filteredCoupons.map((coupon, index) => (
+                  <div key={coupon.id} className={`animate-fadeIn`} style={{ animationDelay: `${index * 0.1}s` }}>
+                    <CouponCard coupon={coupon} />
+                  </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <div className="inline-flex justify-center items-center w-12 h-12 rounded-full bg-gray-100 mb-4">
-                  <Tag className="h-6 w-6 text-gray-400" />
+              <div className="text-center py-20 animate-fadeIn">
+                <div className="inline-flex justify-center items-center w-20 h-20 rounded-full bg-gradient-to-r from-primary/10 to-blue-100 mb-6">
+                  <Tag className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-lg font-medium mb-2">No coupons found</h3>
-                <p className="text-gray-500">
+                <h3 className="text-2xl font-semibold mb-3 text-foreground">No coupons found</h3>
+                <p className="text-muted-foreground text-lg max-w-md mx-auto">
                   Try adjusting your filters or search terms to find what you're looking for.
                 </p>
               </div>
